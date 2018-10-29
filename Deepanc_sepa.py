@@ -14,5 +14,8 @@ parser = OptionParser(usage = "usage% option <file>")
         default = False)
 
 slide = OpenSlide("test.svs")
+"""
 #  this is opneslide reader of the testslide which the format is svs
 testjpg = slide.read_region((0,0),0,slide.dimensions)
+# this line is ignored
+"""
