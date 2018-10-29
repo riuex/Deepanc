@@ -10,7 +10,7 @@ parser = OptionParser(usage = "usage% option <file>")
     parser.options("-L","--ignore-bound",dest = "limit_bounds"
         default = True ,action = "store_false"
         help = "this is the first option of the test")
-    parsee.options()
+    parsee.options("-s","--dont-get")
 
 slide = OpenSlide("test.svs")
 #  this is opneslide reader of the testslide which the format is svs
