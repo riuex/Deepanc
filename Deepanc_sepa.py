@@ -36,6 +36,7 @@ def convert(data,args.pixel):
                 img = img.convert("RGB")
                 h_list.append(h_list)
                 w_start += UNIT_X
+                img_name = f_name + "_" + i + "_" + j + ".jpg"
             v_lst.append(h_lst)
             w_size = UNIT_X
             h_start += UNIT_Y
@@ -76,4 +77,4 @@ if __name__ == "__main__":
         p.map(convert,file)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
     except:
-        print("----------This command was failed"-----------)
+        print("WARNING!!!----------This command was failed"-----------)
