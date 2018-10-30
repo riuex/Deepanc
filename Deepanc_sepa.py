@@ -76,4 +76,4 @@ if __name__ == "__main__":
         p.map(convert,file)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
     except:
-        print("This command was failed")
+        print("----------This command was failed"-----------)
