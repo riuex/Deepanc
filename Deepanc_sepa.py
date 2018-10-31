@@ -11,7 +11,7 @@ import multiprocessing as multi
 
 
 #to make process of sepalating Unit
-def convert(data,args.pixel):
+def convert(data,pixeldef):
     pixel = args.pixel
     UNIT_X,UNIT_Y = pixel,pixel
     try:
@@ -67,6 +67,7 @@ if __name__ == "__main__":
         #
         f_list = [f for f in os.listdir[args.input] if ".svs" in f]
         f_list = [[f,args.input,args.output] for f in f_list]
+        pixeldef = args.pixel
         print("----------program start----------")
         p = pool(args.multi)
         #Set multi processing and run.
