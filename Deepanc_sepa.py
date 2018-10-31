@@ -43,12 +43,10 @@ def convert(data,pixeldef):
         print("Can't open image file : " + fname)
 
 
-
-
 if __name__ == "__main__":
     #Read the command line.
-    parser = argparse.ArgumentParser(description='This script is ...'
-                                    , formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description='This script is ...',
+                                     formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--input", "-i", default="./input",
                         help="Directory name where the input image is saved. default='./input'")
     parser.add_argument("--output", "-o", default="./output",
@@ -58,17 +56,15 @@ if __name__ == "__main__":
     parser.add_argument("--pixel","-p",default=512,
                         help = "Input the number of pixels")
     args = parser.parse_args()
+    # "args" is object which contains all of parameter which user definded on command line
+    #  this is opneslide reader of the testslide which the format is svs
+    f_list = [f for f in os.listdir(args.input) if ".svs" in f]
+    f_list = [[f,args.input,args.output] for f in f_list]
+    pixes = args.pixel
+    print("----------program start----------")
+    #Set multi processing and run.
     try:
-        # "args" is object which contains all of parameter which user definded on command line
-        #  this is opneslide reader of the testslide which the format is svs
-        f_list = [f for f in os.listdir[args.input] if ".svs" in f]
-        f_list = [[f,args.input,args.output] for f in f_list]
-        pixeldef = args.pixel
-        print("----------program start----------")
-        p = pool(args.multi)
-        #Set multi processing and run.
-        p.map(convert,f_list)
+        convert(f_lst,pixes)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
     except:
-        print("WARNING!!!----------This command was failed"-----------)
-    print(args.input)
+        print("WARNING!!!----------This command was failed-----------")
