@@ -46,9 +46,6 @@ if __name__ == "__main__":
     try:
         #Read the command line.
         parser = OptionParser(usage = "usage% option <file>")
-        parser.options("-L","--ignore-bound",dest = "limit_bounds"
-            default = True ,action = "store_false"
-            help = "this is the first option of the test")
         parsee.options("-m","--multi",type = int,
             default = 2,
             help = "you should input your number of CPUcores")
