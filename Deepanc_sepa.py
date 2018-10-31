@@ -2,11 +2,13 @@ import numpy
 import os
 from optparse import OptionParser
 import openslide
-from openslide import open_slide,openslide
+from openslide import open_slide,OpenSlide
 #this package is need to read SVSfiles.
 from multiprocessing import pool
 import multiprocessing as multi
 #this package is need to make multitask possible
+from PIL import Image
+import argparse
 
 
 
@@ -37,38 +39,36 @@ def convert(data,pixeldef):
             w_size = UNIT_X
             h_start += UNIT_Y
             w_start = 0
-
     except:
         print("Can't open image file : " + fname)
-    return
+
+
+
 
 if __name__ == "__main__":
+    #Read the command line.
+    parser = argparse.ArgumentParser(description='This script is ...'
+                                    , formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("--input", "-i", default="./input",
+                        help="Directory name where the input image is saved. default='./input'")
+    parser.add_argument("--output", "-o", default="./output",
+                        help="Directory name where the converted image is saved. default='./output'")
+    parser.add_argument("--multi", "-m", type=int, default=2,
+                        help="Number of CPU cores to use for conversion. default=2")
+    parser.add_argument("--pixel","-p",default=512,
+                        help = "Input the number of pixels")
+    args = parser.parse_args()
     try:
-        #Read the command line.
-        parser = OptionParser(usage = "usage% option <file>")
-        parsee.options("-m","--multi",type = int,
-            default = 2,
-            help = "you should input your number of CPUcores")
-        parser.options("-p","--pixel",type = int,
-            default = 512,
-            help = "please input pixels of sepalated panel")
-        parse.options("-i","--input",default = "",
-            help = "you should input the directory of the SVSfiles")
-        parser.options("-o","--output",default = "",
-            help = "you should input the name of output")
-
-        args = parser.parse_args()
         # "args" is object which contains all of parameter which user definded on command line
-        slide = OpenSlide("test.svs")
         #  this is opneslide reader of the testslide which the format is svs
-        #
         f_list = [f for f in os.listdir[args.input] if ".svs" in f]
         f_list = [[f,args.input,args.output] for f in f_list]
         pixeldef = args.pixel
         print("----------program start----------")
         p = pool(args.multi)
         #Set multi processing and run.
-        p.map(convert,file)
+        p.map(convert,f_list)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
     except:
         print("WARNING!!!----------This command was failed"-----------)
+    print(args.input)
