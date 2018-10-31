@@ -24,20 +24,16 @@ def convert(data,args.pixel):
         w_end,h_end = w%UNIT_X,h%UNIT_Y
         w_size,h_size = UNIT_X,UNIT_Y
         w_start,h_start = 0,0
-        v_lst = []
         for i in range(h_rep):
             if i == h_rep - 1:
                 h_size = h_end
-            h_lst = []
             for j in range(w_rep):
                 if j == w_rep - 1:
                     w_size = w_end
                 img = simage.read_region((W_start,h_start),0,(w_size,h_size))
                 img = img.convert("RGB")
-                h_list.append(h_list)
                 w_start += UNIT_X
                 img_name = f_name + "_" + i + "_" + j + ".jpg"
-            v_lst.append(h_lst)
             w_size = UNIT_X
             h_start += UNIT_Y
             w_start = 0
