@@ -51,8 +51,10 @@ if __name__ == "__main__":
     #Read the command line.
     parser = argparse.ArgumentParser(description='This script is ...',
                                      formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("--input", "-i", default="input/test.svs",
-                        help="Directory name where the input image is saved. default='./input'")
+    parser.add_argument("--input", "-i", default="input",
+                        help="The Directory name where the input image is saved. default='./input'")
+    parser.add_argument("--filename","-f",default="test.svs",
+                        help = "you should input the file name")
     parser.add_argument("--output", "-o", default="./output",
                         help="Directory name where the converted image is saved. default='./output'")
     parser.add_argument("--multi", "-m", type=int, default=2,
@@ -65,7 +67,7 @@ if __name__ == "__main__":
     # "args" is object which contains all of parameter which user definded on command line
     #  this is opneslide reader of the testslide which the format is svs
     #f_lst = [f for f in os.listdir(args.input) if ".svs" in f]
-    f_list = [args.input,"input",args.output]
+    f_list = [(args.filename + "/" + args.input),args.input,args.output]
     widepixels = args.widepixel
     heightpixels = args.heightpixel
     print("----------program start----------")
