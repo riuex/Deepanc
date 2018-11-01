@@ -13,10 +13,10 @@ import argparse
 
 
 #to make process of sepalating Unit
-def convert(data,Wpixels,hpixels):
+def convert(data,wpixels,hpixels):
     try:
         UNIT_X,UNIT_Y = wpixels,hpixels
-        # insert
+        #print(insert)
         fname,f_input,f_output = data
         save_name = fname.split("/")[1]
         save_name = save_name.split(".")[0]
@@ -27,7 +27,7 @@ def convert(data,Wpixels,hpixels):
         w_end,h_end = w%UNIT_X,h%UNIT_Y
         w_size,h_size = UNIT_X,UNIT_Y
         w_start,h_start = 0,0
-        print("program is ready!!")
+        print("function is ready!!")
         for i in range(h_rep):
             if i == h_rep - 1:
                 h_size = h_end
@@ -38,7 +38,7 @@ def convert(data,Wpixels,hpixels):
                 img = img.convert("RGB")
                 img_name = f_output+ "/" + save_name + "_" + str(i) + "_" + str(j) + ".jpg"
                 img.save(img_name)
-                print("saving image:" + img_name)
+                print("saving image:" + f_output + "/" + save_name + "_(" + str(i) + "/" + str(h_rep-1) + ")_(" + str(j) + "/" + str(w_rep-1) + ").jpg")
                 w_start += UNIT_X
             w_size = UNIT_X
             h_start += UNIT_Y
@@ -57,9 +57,9 @@ if __name__ == "__main__":
                         help="Directory name where the converted image is saved. default='./output'")
     parser.add_argument("--multi", "-m", type=int, default=2,
                         help="Number of CPU cores to use for conversion. default=2")
-    parser.add_argument("--widepixel","-w",default=512,
+    parser.add_argument("--widepixel","-w",type = int,default=512,
                         help = "Input the number of pixels")
-    parser.add_argument("--heightpixel","-e",default=512,
+    parser.add_argument("--heightpixel","-e",type = int,default=512,
                         help = "Input the number of height pixels")
     args = parser.parse_args()
     # "args" is object which contains all of parameter which user definded on command line
@@ -70,7 +70,6 @@ if __name__ == "__main__":
     heightpixels = args.heightpixel
     print("----------program start----------")
     #Set multi processing and run.
-
     try:
         convert(f_list,widepixels,heightpixels)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
