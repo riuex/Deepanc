@@ -10,10 +10,13 @@ import multiprocessing as multi
 from PIL import Image
 import argparse
 
+def selgro(image):
+
+    except
 
 
 #to make process of sepalating Unit
-def convert(data,wpixels,hpixels):
+def conv(data,wpixels,hpixels):
     try:
         UNIT_X,UNIT_Y = wpixels,hpixels
         #print(insert)
@@ -77,7 +80,7 @@ if __name__ == "__main__":
     print("----------program start----------")
     #Set multi processing and run.
     try:
-        convert(f_list,widepixels,heightpixels)
+        conv(f_list,widepixels,heightpixels)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
     except:
         print("WARNING!!!----------This command was failed-----------")
