@@ -38,13 +38,17 @@ def convert(data,wpixels,hpixels):
                 img = img.convert("RGB")
                 img_name = f_output+ "/" + save_name + "_" + str(i) + "_" + str(j) + ".jpg"
                 img.save(img_name)
+                """
+                ggray = img.point()
+                print(ggray)
+                """
                 print("saving image:" + f_output + "/" + save_name + "_(" + str(i) + "/" + str(h_rep-1) + ")_(" + str(j) + "/" + str(w_rep-1) + ").jpg")
                 w_start += UNIT_X
             w_size = UNIT_X
             h_start += UNIT_Y
             w_start = 0
     except:
-        print("Can't open image file : " + fname)
+        print("Couldn't run! Something wrong in :" + fname)
 
 
 if __name__ == "__main__":
