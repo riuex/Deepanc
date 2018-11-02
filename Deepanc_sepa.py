@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # "args" is object which contains all of parameter which user definded on command line
     #  this is opneslide reader of the testslide which the format is svs
     #f_lst = [f for f in os.listdir(args.input) if ".svs" in f]
-    f_list = [(args.filename + "/" + args.input),args.input,args.output]
+    f_list = [(args.input + "/" + args.filename),args.input,args.output]
     widepixels = args.widepixel
     heightpixels = args.heightpixel
     print("----------program start----------")
