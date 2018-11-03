@@ -24,7 +24,7 @@ def conv(data,wpixels,hpixels):
         save_name = fname.split("/")[1]
         save_name = save_name.split(".")[0]
         print("processing : " + fname)
-        simage = OpenSlide(fname)
+        simage = open_slide(fname)
         w,h = simage.dimensions
         w_rep,h_rep = int(w//UNIT_X)+1,int(h//UNIT_Y)+1
         w_end,h_end = w%UNIT_X,h%UNIT_Y
