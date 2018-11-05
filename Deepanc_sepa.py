@@ -3,6 +3,7 @@ import os
 from optparse import OptionParser
 import openslide
 from openslide import open_slide,OpenSlide
+from openslide.deepzoom import DeepZoomGenerator
 #this package is need to read SVSfiles.
 from multiprocessing import pool
 import multiprocessing as multi
@@ -10,18 +11,35 @@ import multiprocessing as multi
 from PIL import Image
 import argparse
 
-def selgro(image,level,address):
-    tile = image.get_tile(level,address)
+def conv3(image_path,image_name,pixels,overlap,limit_bounds,coreN):
+    image = open_slide(image_path)
+    simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
+    level = simage.level_count - 1
+    Xmax,Ymax = simage.level_tiles[level]
+    Xmax,Ymax = Xmax - 1,Ymax - 1
+    Y_range = range(Ymax)
+    with pool(coreN) as p:
+        p.map(conv3_tilesave,(simage,level,Y_range,Xmax,Ymax))
+
+
+def conv3_tilesave(simage,level,i,Xmax,Ymax):
+    for j in range(Xmax):
+        address = (j,i)
+        tile = simage.get_tile(level,address)
+        image_name = "output/XXXX_" + str(i) + "_" + str(j) + "_.jpg"
+        print("output/XXXX_(" + str(i) +"/" + str(Ymax) + ")_(" + str(j) + "/" +str(Xmax) + ")_.jpg")
+        tile.save(image_name)
 
 
 def conv2():
-    try UNIT_X,UNIT_Y = wpixels,hpixels
-    fname,f_input,f_output = data
-    save_name = fname.splot("/")[1]
-    save_name = save_name.split(".")[0]
-    print("processing : " + fname)
-    simage = OpenSlide(fname)
-    w,h = simage.dimensions
+    try :
+        UNIT_X,UNIT_Y = wpixels,hpixels
+        fname,f_input,f_output = data
+        save_name = fname.splot("/")[1]
+        save_name = save_name.split(".")[0]
+        print("processing : " + fname)
+        simage = OpenSlide(fname)
+        w,h = simage.dimensions
         w_rep,h_rep = int(w//UNIT_X)+1,int(h//UNIT_Y)+1
         w_end,h_end = w%UNIT_X,h%UNIT_Y
         w_size,h_size = UNIT_X,UNIT_Y
@@ -109,13 +127,14 @@ if __name__ == "__main__":
     # "args" is object which contains all of parameter which user definded on command line
     #  this is opneslide reader of the testslide which the format is svs
     #f_lst = [f for f in os.listdir(args.input) if ".svs" in f]
-    f_list = [(args.input + "/" + args.filename),args.input,args.output]
+    image_path = args.input + "/" + args.filename
+    f_list = [image_path,args.input,args.output]
     widepixels = args.widepixel
     heightpixels = args.heightpixel
     print("----------program start----------")
     #Set multi processing and run.
-    try:
-        conv(f_list,widepixels,heightpixels)
+    #try:
+    conv3(image_path,args.filename,widepixels,1,False,args.multi)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
-    except:
-        print("WARNING!!!----------This command was failed-----------")
+    #except:
+    #print("WARNING!!!----------This command was failed-----------")
