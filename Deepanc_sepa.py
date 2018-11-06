@@ -26,6 +26,8 @@ def conv3_tilesave(simage,level,i,Xmax,Ymax):
     for j in range(Xmax):
         address = (j,i)
         tile = simage.get_tile(level,address)
+        gray = tile.convert("L")
+        bw = gray.point(lambda x: 0 if x<220 else 1,"1")
         image_name = "output/XXXX_" + str(i) + "_" + str(j) + "_.jpg"
         print("output/XXXX_(" + str(i) +"/" + str(Ymax) + ")_(" + str(j) + "/" +str(Xmax) + ")_.jpg")
         tile.save(image_name)
