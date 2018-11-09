@@ -5,35 +5,36 @@ import openslide
 from openslide import open_slide,OpenSlide
 from openslide.deepzoom import DeepZoomGenerator
 #this package is need to read SVSfiles.
-from multiprocessing import pool
+from multiprocessing.pool import Pool
 import multiprocessing as multi
 #this package is need to make multitask possible
 from PIL import Image
 import argparse
 
-def conv3(image_path,image_name,pixels,overlap,limit_bounds,coreN):
+def conv3(image_path,image_name,pixels,overlap,limit_bounds,coreN,border):
     image = open_slide(image_path)
     simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
     level = simage.level_count - 1
     Xmax,Ymax = simage.level_tiles[level]
     Xmax,Ymax = Xmax - 1,Ymax - 1
     Y_range = range(Ymax)
-    with pool(coreN) as p:
-        p.map(conv3_tilesave,(simage,level,Y_range,Xmax,Ymax))
+    with Pool(coreN) as p:
+        p.map(conv3_tilesave,(simage,level,Y_range,Xmax,Ymax,border))
 
 
-def conv3_tilesave(simage,level,i,Xmax,Ymax):
+def conv3_tilesave(simage,level,i,Xmax,Ymax,border):
     for j in range(Xmax):
         address = (j,i)
         tile = simage.get_tile(level,address)
         gray = tile.convert("L")
         bw = gray.point(lambda x: 0 if x<220 else 1,"1")
-        if bw <= border
+        if bw <= border :
             image_name = "output/XXXX_" + str(i) + "_" + str(j) + "_.jpg"
             print("output/XXXX_(" + str(i) +"/" + str(Ymax) + ")_(" + str(j) + "/" +str(Xmax) + ")_.jpg")
             tile.save(image_name)
-        else
+        else :
             return
+
 
 
 def conv2():
@@ -128,6 +129,8 @@ if __name__ == "__main__":
                         help = "Input the number of pixels")
     parser.add_argument("--heightpixel","-e",type = int,default=512,
                         help = "Input the number of height pixels")
+    parser.add_argument("--border","-b", type=int ,default = 220,
+                        help ="please input the border of background")
     args = parser.parse_args()
     # "args" is object which contains all of parameter which user definded on command line
     #  this is opneslide reader of the testslide which the format is svs
@@ -139,7 +142,7 @@ if __name__ == "__main__":
     print("----------program start----------")
     #Set multi processing and run.
     #try:
-    conv3(image_path,args.filename,widepixels,1,False,args.multi)
+    conv3(image_path,args.filename,widepixels,1,False,args.multi,args.border)
         #testjpg = slide.read_region((0,0),0,slide.dimensions)
     #except:
     #print("WARNING!!!----------This command was failed-----------")
