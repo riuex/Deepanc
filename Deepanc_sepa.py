@@ -5,7 +5,7 @@ import openslide
 from openslide import open_slide,OpenSlide
 from openslide.deepzoom import DeepZoomGenerator
 #this package is need to read SVSfiles.
-from multiprocessing import pool
+from multiprocessing.pool import Pool
 import multiprocessing as multi
 #this package is need to make multitask possible
 from PIL import Image
@@ -18,7 +18,7 @@ def conv3(image_path,image_name,pixels,overlap,limit_bounds,coreN):
     Xmax,Ymax = simage.level_tiles[level]
     Xmax,Ymax = Xmax - 1,Ymax - 1
     Y_range = range(Ymax)
-    with pool(coreN) as p:
+    with Pool(coreN) as p:
         p.map(conv3_tilesave,(simage,level,Y_range,Xmax,Ymax))
 
 
@@ -34,6 +34,7 @@ def conv3_tilesave(simage,level,i,Xmax,Ymax):
             tile.save(image_name)
         else
             return
+
 
 
 def conv2():
