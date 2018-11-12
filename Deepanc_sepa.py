@@ -19,11 +19,8 @@ def conv3(image_path,image_name,pixels,overlap,limit_bounds,coreN,border):
     Xmax,Ymax = Xmax - 1,Ymax - 1
     Y_range = range(Ymax)
     with Pool(coreN) as p:
-<<<<<<< HEAD
         p.map(conv3_tilesave,(simage,level,Y_range,Xmax,Ymax,border))
-=======
-        p.map(conv3_tilesave,(simage,level,Y_range,Xmax,Ymax))
->>>>>>> sepalate
+
 
 
 def conv3_tilesave(simage,level,i,Xmax,Ymax,border):
