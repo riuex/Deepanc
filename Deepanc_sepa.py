@@ -234,7 +234,7 @@ if __name__ == "__main__":
     elif function == "conv4":
         conv4(image_path,args.output,widepixels,1,False,args.multi,args.border)
     else :
-        print("we don't recognize this function.")
+        print("we couldn't recognize this function.")
 
     endtime = time.time()
     usedtime = round(endtime - starttime,2)
