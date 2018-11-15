@@ -10,30 +10,84 @@ import multiprocessing as multi
 #this package is need to make multitask possible
 from PIL import Image
 import argparse
+import time
 """
-def conv3(image_path,image_name,pixels,overlap,limit_bounds,coreN,border):
+def conv3(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
     image = open_slide(image_path)
+    file_name = image_path.split("/")[1]
+    file_name = file_name.split(".")[0]
+    save_name = save_folder +"/" + file_name
     simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
     level = simage.level_count - 1
     Xmax,Ymax = simage.level_tiles[level]
     Xmax,Ymax = Xmax - 1,Ymax - 1
-    Y_range = range(Ymax)
-    with Pool(coreN) as p:
-        p.map(conv3_tilesave,(simage,level,Y_range,Xmax,Ymax,border))
+    conunter = 0
+    Yrange = range(Ymax)
+    Xrange = range(Xmax)
+    #for j in Xrange:
+    p = Pool(coreN)
+    p.map(conv3p,Xrange)
+    p.close()
+    print("mission completed!! Good bye!!!!")
 
-def conv3_tilesave(simage,level,i,Xmax,Ymax,border):
-    for j in range(Xmax):
+def conv3p(i):
+    for i in range(Ymax):
         address = (j,i)
         tile = simage.get_tile(level,address)
         gray = tile.convert("L")
         bw = gray.point(lambda x: 0 if x<220 else 1,"1")
-        if bw <= border :
-            image_name = "output/XXXX_" + str(i) + "_" + str(j) + "_.jpg"
-            print("output/XXXX_(" + str(i) +"/" + str(Ymax) + ")_(" + str(j) + "/" +str(Xmax) + ")_.jpg")
+        avgBkg = np.average(bw)
+        if avgBkg <= (border/100) :
+            image_name = save_name + "_" + str(i) + "_" + str(j) + ".jpg"
+            print(save_name+ "_(" + str(i) +"/" + str(Ymax) + ")_(" + str(j) + "/" +str(Xmax) + ").jpg")
             tile.save(image_name)
+            conunter += 1
         else :
-            return
+            pass
+        #print("-------Y length{" +str(i) + "}was completed!!!-----------")
+        print("Number of tiles : " + str(conunter) + "/" + str(Xmax*Ymax))
 """
+
+def conv4(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
+    image = open_slide(image_path)
+    file_name = image_path.split("/")[1]
+    file_name = file_name.split(".")[0]
+    save_name = save_folder +"/" + file_name
+    simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
+    level = simage.level_count - 1
+    Xmax,Ymax = simage.level_tiles[level]
+    Xmax,Ymax = Xmax - 1,Ymax - 1
+    conunter = 0
+    p = Pool(coreN)
+    for j in range(Ymax):
+        dataList = [(image_path,pixels,overlap,limit_bounds,i,j,Xmax,Ymax,level,border,save_name,conunter) for i in range(Xmax)]
+        print("\n processing" + str(j) + "\n")
+        p.map(conv4q,dataList)
+    print("mission completed!! Good bye!!!!")
+        #print("Number of tiles : " + str(conunter) + "/" + str(Xmax*Ymax))
+
+
+def conv4q(dataList):
+    conv4p(*dataList)
+
+def conv4p(image_path,pixels,overlap,limit_bounds,x,y,Xmax,Ymax,level,border,save_name,counter):
+    image = open_slide(image_path)
+    simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
+    address = (x,y)
+    tile = simage.get_tile(level,address)
+    gray = tile.convert("L")
+    bw = gray.point(lambda x: 0 if x<220 else 1,"1")
+    avgBkg = np.average(bw)
+    if avgBkg <= (border/100) :
+        image_name = save_name + "_" + str(y) + "_" + str(x) + ".jpg"
+        print(save_name+ "_(" + str(y) +"/" + str(Ymax) + ")_(" + str(x) + "/" +str(Xmax) + ").jpg")
+        tile.save(image_name)
+        #conunter += 1
+    else :
+        pass
+#print("-------Y length{" +str(i) + "}was completed!!!-----------")
+
+
 def conv3pro(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
     image = open_slide(image_path)
     file_name = image_path.split("/")[1]
@@ -158,6 +212,8 @@ if __name__ == "__main__":
                         help = "Input the number of height pixels")
     parser.add_argument("--border","-b", type=int ,default = 50,
                         help ="please input the border of background")
+    parser.add_argument("--function","-fu",type = str,default = "conv3pro",
+                        help = "Please select method of tiling")
     args = parser.parse_args()
     # "args" is object which contains all of parameter which user definded on command line
     #  this is opneslide reader of the testslide which the format is svs
@@ -166,10 +222,24 @@ if __name__ == "__main__":
     f_list = [image_path,args.input,args.output]
     widepixels = args.widepixel
     heightpixels = args.heightpixel
+    function = args.function
     print("----------program start----------")
+    starttime = time.time()
     #Set multi processing and run.
     #try:
-    conv3pro(image_path,args.output,widepixels,1,False,args.multi,args.border)
-        #testjpg = slide.read_region((0,0),0,slide.dimensions)
+    if function == "conv3pro":
+        conv3pro(image_path,args.output,widepixels,1,False,args.multi,args.border)
+    elif function == "conv3":
+        conv3(image_path,args.output,widepixels,1,False,args.multi,args.border)
+    elif function == "conv4":
+        conv4(image_path,args.output,widepixels,1,False,args.multi,args.border)
+    else :
+        print("we don't recognize this function.")
+
+    endtime = time.time()
+    usedtime = round(endtime - starttime,2)
+
+    print("You need " + str(usedtime) + "seconds")
+    #testjpg = slide.read_region((0,0),0,slide.dimensions)
     #except:
     #print("WARNING!!!----------This command was failed-----------")
