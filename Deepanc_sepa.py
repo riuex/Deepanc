@@ -11,95 +11,78 @@ import multiprocessing as multi
 from PIL import Image
 import argparse
 import time
-"""
-def conv3(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
-    image = open_slide(image_path)
-    file_name = image_path.split("/")[1]
-    file_name = file_name.split(".")[0]
-    save_name = save_folder +"/" + file_name
-    simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
-    level = simage.level_count - 1
-    Xmax,Ymax = simage.level_tiles[level]
-    Xmax,Ymax = Xmax - 1,Ymax - 1
-    conunter = 0
-    Yrange = range(Ymax)
-    Xrange = range(Xmax)
-    #for j in Xrange:
-    p = Pool(coreN)
-    p.map(conv3p,Xrange)
-    p.close()
-    print("mission completed!! Good bye!!!!")
 
-def conv3p(i):
-    for i in range(Ymax):
-        address = (j,i)
-        tile = simage.get_tile(level,address)
+
+class convert_main():
+
+    def __init__(self,image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
+        self.image_path = image_path
+        self.save_folder = save_folder
+        self.pixels = pixels
+        self.overlap = overlap
+        self.limit_bounds = limit_bounds
+        self.coreN = coreN
+        self.border = border
+        self.save_name =None
+        self.Xmax,self.Ymax = None,None
+        #self.counter = multi.Queue()
+    def run(self):
+        image = open_slide(self.image_path)
+        self.file_name = self.image_path.split("/")[1]
+        self.file_name = self.file_name.split(".")[0]
+        self.save_name = self.save_folder +"/" + self.file_name
+        simage = DeepZoomGenerator(image,self.pixels,self.overlap,self.limit_bounds)
+        self.level = simage.level_count - 1
+        self.Xmax,self.Ymax = simage.level_tiles[self.level]
+        self.Xmax,self.Ymax = self.Xmax - 1,self.Ymax - 1
+        dataList = [[x,y] for x in range(self.Xmax) for y in range(self.Ymax)]
+        p = multi.Pool(self.coreN*2)
+        p.map(self.sub,dataList)
+        print("mission completed!! Good bye!!!!")
+        #print("Number of tiles : " + str(self.conunter) + "/" + str(self.Xmax*self.Ymax))
+
+    def sub(self,dataList):
+        X,Y = dataList
+        address = (X,Y)
+        image = open_slide(self.image_path)
+        simage = DeepZoomGenerator(image,self.pixels,self.overlap,self.limit_bounds)
+        tile = simage.get_tile(self.level,address)
         gray = tile.convert("L")
         bw = gray.point(lambda x: 0 if x<220 else 1,"1")
         avgBkg = np.average(bw)
-        if avgBkg <= (border/100) :
-            image_name = save_name + "_" + str(i) + "_" + str(j) + ".jpg"
-            print(save_name+ "_(" + str(i) +"/" + str(Ymax) + ")_(" + str(j) + "/" +str(Xmax) + ").jpg")
-            tile.save(image_name)
-            conunter += 1
+        if avgBkg <= (self.border/100) :
+            self.image_name = self.save_name + "_" + str(X) + "_" + str(Y) + ".jpg"
+            print("processing{"+self.image_path +"} :" +self.image_name)
+            #print(save_name+ "_(" + str(y) +"/" + str(Ymax) + ")_(" + str(x) + "/" +str(Xmax) + ").jpg")
+            tile.save(self.image_name)
         else :
             pass
-        #print("-------Y length{" +str(i) + "}was completed!!!-----------")
-        print("Number of tiles : " + str(conunter) + "/" + str(Xmax*Ymax))
-"""
-
-def conv4(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
-    image = open_slide(image_path)
-    file_name = image_path.split("/")[1]
-    file_name = file_name.split(".")[0]
-    save_name = save_folder +"/" + file_name
-    simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
-    level = simage.level_count - 1
-    Xmax,Ymax = simage.level_tiles[level]
-    Xmax,Ymax = Xmax - 1,Ymax - 1
-    conunter = 0
-    p = Pool(coreN)
-    for j in range(Ymax):
-        dataList = [(image_path,pixels,overlap,limit_bounds,i,j,Xmax,Ymax,level,border,save_name,conunter) for i in range(Xmax)]
-        print("\n processing" + str(j) + "\n")
-        p.map(conv4q,dataList)
-    print("mission completed!! Good bye!!!!")
-        #print("Number of tiles : " + str(conunter) + "/" + str(Xmax*Ymax))
+        #self.conunter.put(get(self.conunter) + 1)
 
 
-def conv4q(dataList):
-    conv4p(*dataList)
+class convert3(convert_main):
 
-def conv4p(image_path,pixels,overlap,limit_bounds,x,y,Xmax,Ymax,level,border,save_name,counter):
-    image = open_slide(image_path)
-    simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
-    address = (x,y)
-    tile = simage.get_tile(level,address)
-    gray = tile.convert("L")
-    bw = gray.point(lambda x: 0 if x<220 else 1,"1")
-    avgBkg = np.average(bw)
-    if avgBkg <= (border/100) :
-        image_name = save_name + "_" + str(y) + "_" + str(x) + ".jpg"
-        print(save_name+ "_(" + str(y) +"/" + str(Ymax) + ")_(" + str(x) + "/" +str(Xmax) + ").jpg")
-        tile.save(image_name)
-        #conunter += 1
-    else :
-        pass
-#print("-------Y length{" +str(i) + "}was completed!!!-----------")
+    """
+    def conv3(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
+        image = open_slide(image_path)
+        file_name = image_path.split("/")[1]
+        file_name = file_name.split(".")[0]
+        save_name = save_folder +"/" + file_name
+        simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
+        level = simage.level_count - 1
+        Xmax,Ymax = simage.level_tiles[level]
+        Xmax,Ymax = Xmax - 1,Ymax - 1
+        conunter = 0
+        Yrange = range(Ymax)
+        Xrange = range(Xmax)
+        #for j in Xrange:
+        p = Pool(coreN)
+        p.map(conv3p,Xrange)
+        p.close()
+        print("mission completed!! Good bye!!!!")
 
-
-def conv3pro(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
-    image = open_slide(image_path)
-    file_name = image_path.split("/")[1]
-    file_name = file_name.split(".")[0]
-    save_name = save_folder +"/" + file_name
-    simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
-    level = simage.level_count - 1
-    Xmax,Ymax = simage.level_tiles[level]
-    Xmax,Ymax = Xmax - 1,Ymax - 1
-    conunter = 0
-    for i in range(Ymax):
-        for j in range(Xmax):
+    def conv3p(i):
+        for i in range(Ymax):
             address = (j,i)
             tile = simage.get_tile(level,address)
             gray = tile.convert("L")
@@ -112,86 +95,117 @@ def conv3pro(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
                 conunter += 1
             else :
                 pass
-        #print("-------Y length{" +str(i) + "}was completed!!!-----------")
-    print("Number of tiles : " + str(conunter) + "/" + str(Xmax*Ymax))
-    print("mission completed!! Good bye!!!!")
+            #print("-------Y length{" +str(i) + "}was completed!!!-----------")
+            print("Number of tiles : " + str(conunter) + "/" + str(Xmax*Ymax))
+    """
+('input/test.svs', 512, 1, 1, 51, 0, 61, 67, None, 30, 'output/test', 0)
+
+class convert3pro(convert_main):
+    def conv3pro(image_path,save_folder,pixels,overlap,limit_bounds,coreN,border):
+        image = open_slide(image_path)
+        file_name = image_path.split("/")[1]
+        file_name = file_name.split(".")[0]
+        save_name = save_folder +"/" + file_name
+        simage = DeepZoomGenerator(image,pixels,overlap,limit_bounds)
+        level = simage.level_count - 1
+        Xmax,Ymax = simage.level_tiles[level]
+        Xmax,Ymax = Xmax - 1,Ymax - 1
+        conunter = 0
+        for i in range(Ymax):
+            for j in range(Xmax):
+                address = (j,i)
+                tile = simage.get_tile(level,address)
+                gray = tile.convert("L")
+                bw = gray.point(lambda x: 0 if x<220 else 1,"1")
+                avgBkg = np.average(bw)
+                if avgBkg <= (border/100) :
+                    image_name = save_name + "_" + str(i) + "_" + str(j) + ".jpg"
+                    print(save_name+ "_(" + str(i) +"/" + str(Ymax) + ")_(" + str(j) + "/" +str(Xmax) + ").jpg")
+                    tile.save(image_name)
+                    conunter += 1
+                else :
+                    pass
+            #print("-------Y length{" +str(i) + "}was completed!!!-----------")
+        print("Number of tiles : " + str(conunter) + "/" + str(Xmax*Ymax))
+        print("mission completed!! Good bye!!!!")
 
 
+class convert2(convert_main):
+    def conv2():
+        try :
+            UNIT_X,UNIT_Y = wpixels,hpixels
+            fname,f_input,f_output = data
+            save_name = fname.split("/")[1]
+            save_name = save_name.split(".")[0]
+            print("processing : " + fname)
+            simage = OpenSlide(fname)
+            w,h = simage.dimensions
+            w_rep,h_rep = int(w//UNIT_X)+1,int(h//UNIT_Y)+1
+            w_end,h_end = w%UNIT_X,h%UNIT_Y
+            w_size,h_size = UNIT_X,UNIT_Y
+            w_start,h_start = 0,0
+            print("function is ready!!")
+            for i in range(h_rep):
+                if i == h_rep - 1:
+                    h_size = h_end
+                for j in range(w_rep):
+                    if j == w_rep - 1:
+                        w_size = w_end
+                    img = simage.read_region((w_start,h_start),0,(w_size,h_size))
+                    img = img.convert("RGB")
+                    img_name = f_output+ "/" + save_name + "_" + str(i) + "_" + str(j) + ".jpg"
+                    img.save(img_name)
+                    """
+                    ggray = img.point()
+                    print(ggray)
+                    """
+                    print("saving image:" + f_output + "/" + save_name + "_(" + str(i) + "/" + str(h_rep-1) + ")_(" + str(j) + "/" + str(w_rep-1) + ").jpg")
+                    w_start += UNIT_X
+                w_size = UNIT_X
+                h_start += UNIT_Y
+                w_start = 0
+        except:
+            print("Couldn't run! Something wrong in :" + fname)
 
-def conv2():
-    try :
-        UNIT_X,UNIT_Y = wpixels,hpixels
-        fname,f_input,f_output = data
-        save_name = fname.split("/")[1]
-        save_name = save_name.split(".")[0]
-        print("processing : " + fname)
-        simage = OpenSlide(fname)
-        w,h = simage.dimensions
-        w_rep,h_rep = int(w//UNIT_X)+1,int(h//UNIT_Y)+1
-        w_end,h_end = w%UNIT_X,h%UNIT_Y
-        w_size,h_size = UNIT_X,UNIT_Y
-        w_start,h_start = 0,0
-        print("function is ready!!")
-        for i in range(h_rep):
-            if i == h_rep - 1:
-                h_size = h_end
-            for j in range(w_rep):
-                if j == w_rep - 1:
-                    w_size = w_end
-                img = simage.read_region((w_start,h_start),0,(w_size,h_size))
-                img = img.convert("RGB")
-                img_name = f_output+ "/" + save_name + "_" + str(i) + "_" + str(j) + ".jpg"
-                img.save(img_name)
-                """
-                ggray = img.point()
-                print(ggray)
-                """
-                print("saving image:" + f_output + "/" + save_name + "_(" + str(i) + "/" + str(h_rep-1) + ")_(" + str(j) + "/" + str(w_rep-1) + ").jpg")
-                w_start += UNIT_X
-            w_size = UNIT_X
-            h_start += UNIT_Y
-            w_start = 0
-    except:
-        print("Couldn't run! Something wrong in :" + fname)
+class convert(convert_main):
+    #to make process of sepalating Unit
+    def conv(data,wpixels,hpixels):
+        try:
+            UNIT_X,UNIT_Y = wpixels,hpixels
+            #print(insert)
+            fname,f_input,f_output = data
+            save_name = fname.split("/")[1]
+            save_name = save_name.split(".")[0]
+            print("processing : " + fname)
+            simage = open_slide(fname)
+            w,h = simage.dimensions
+            w_rep,h_rep = int(w//UNIT_X)+1,int(h//UNIT_Y)+1
+            w_end,h_end = w%UNIT_X,h%UNIT_Y
+            w_size,h_size = UNIT_X,UNIT_Y
+            w_start,h_start = 0,0
+            print("function is ready!!")
+            for i in range(h_rep):
+                if i == h_rep - 1:
+                    h_size = h_end
+                for j in range(w_rep):
+                    if j == w_rep - 1:
+                        w_size = w_end
+                    img = simage.read_region((w_start,h_start),0,(w_size,h_size))
+                    img = img.convert("RGB")
+                    img_name = f_output+ "/" + save_name + "_" + str(i) + "_" + str(j) + ".jpg"
+                    img.save(img_name)
+                    """
+                    ggray = img.point()
+                    print(ggray)
+                    """
+                    print("saving image:" + f_output + "/" + save_name + "_(" + str(i) + "/" + str(h_rep-1) + ")_(" + str(j) + "/" + str(w_rep-1) + ").jpg")
+                    w_start += UNIT_X
+                w_size = UNIT_X
+                h_start += UNIT_Y
+                w_start = 0
+        except:
+            print("Couldn't run! Something wrong in :" + fname)
 
-
-#to make process of sepalating Unit
-def conv(data,wpixels,hpixels):
-    try:
-        UNIT_X,UNIT_Y = wpixels,hpixels
-        #print(insert)
-        fname,f_input,f_output = data
-        save_name = fname.split("/")[1]
-        save_name = save_name.split(".")[0]
-        print("processing : " + fname)
-        simage = open_slide(fname)
-        w,h = simage.dimensions
-        w_rep,h_rep = int(w//UNIT_X)+1,int(h//UNIT_Y)+1
-        w_end,h_end = w%UNIT_X,h%UNIT_Y
-        w_size,h_size = UNIT_X,UNIT_Y
-        w_start,h_start = 0,0
-        print("function is ready!!")
-        for i in range(h_rep):
-            if i == h_rep - 1:
-                h_size = h_end
-            for j in range(w_rep):
-                if j == w_rep - 1:
-                    w_size = w_end
-                img = simage.read_region((w_start,h_start),0,(w_size,h_size))
-                img = img.convert("RGB")
-                img_name = f_output+ "/" + save_name + "_" + str(i) + "_" + str(j) + ".jpg"
-                img.save(img_name)
-                """
-                ggray = img.point()
-                print(ggray)
-                """
-                print("saving image:" + f_output + "/" + save_name + "_(" + str(i) + "/" + str(h_rep-1) + ")_(" + str(j) + "/" + str(w_rep-1) + ").jpg")
-                w_start += UNIT_X
-            w_size = UNIT_X
-            h_start += UNIT_Y
-            w_start = 0
-    except:
-        print("Couldn't run! Something wrong in :" + fname)
 
 
 if __name__ == "__main__":
@@ -223,19 +237,21 @@ if __name__ == "__main__":
     widepixels = args.widepixel
     heightpixels = args.heightpixel
     function = args.function
-    print("----------program start----------")
-    starttime = time.time()
     #Set multi processing and run.
     #try:
     if function == "conv3pro":
-        conv3pro(image_path,args.output,widepixels,1,False,args.multi,args.border)
+        converter = conv3pro(image_path,args.output,widepixels,1,False,args.multi,args.border)
     elif function == "conv3":
-        conv3(image_path,args.output,widepixels,1,False,args.multi,args.border)
-    elif function == "conv4":
-        conv4(image_path,args.output,widepixels,1,False,args.multi,args.border)
+        converter =conv3(image_path,args.output,widepixels,1,False,args.multi,args.border)
+    elif function == "convert_main":
+        converter= convert_main(image_path,args.output,widepixels,1,False,args.multi,args.border)
     else :
         print("we couldn't recognize this function.")
 
+
+    print("----------program start----------")
+    starttime = time.time()
+    converter.run()
     endtime = time.time()
     usedtime = round(endtime - starttime,2)
 
