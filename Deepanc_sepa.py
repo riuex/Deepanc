@@ -25,7 +25,7 @@ class convert_main():
         self.border = border
         self.save_name =None
         self.Xmax,self.Ymax = None,None
-        #self.counter = multi.Queue()
+        self.counter
     def run(self):
         image = open_slide(self.image_path)
         self.file_name = self.image_path.split("/")[1]
@@ -39,7 +39,7 @@ class convert_main():
         p = multi.Pool(self.coreN*2)
         p.map(self.sub,dataList)
         print("mission completed!! Good bye!!!!")
-        #print("Number of tiles : " + str(self.conunter) + "/" + str(self.Xmax*self.Ymax))
+        #print("Number of tiles : " + str(self.counter) + "/" + str(self.Xmax*self.Ymax))
 
     def sub(self,dataList):
         X,Y = dataList
@@ -54,6 +54,7 @@ class convert_main():
             self.image_name = self.save_name + "_" + str(X) + "_" + str(Y) + ".jpg"
             print("processing{"+self.image_path +"} :" +self.image_name)
             #print(save_name+ "_(" + str(y) +"/" + str(Ymax) + ")_(" + str(x) + "/" +str(Xmax) + ").jpg")
+            self.counter += 1
             tile.save(self.image_name)
         else :
             pass
